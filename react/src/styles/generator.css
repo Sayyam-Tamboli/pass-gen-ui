@@ -1,0 +1,163 @@
+/* ---------- THEME ---------- */
+:root[data-theme="dark"] {
+  --bg: radial-gradient(circle at top, #1f2937, #020617);
+  --card: rgba(30, 41, 59, 0.9);
+  --text: #f8fafc;
+  --input: #020617;
+}
+
+:root[data-theme="light"] {
+  --bg: radial-gradient(circle at top, #f8fafc, #e2e8f0);
+  --card: #ffffff;
+  --text: #020617;
+  --input: #f1f5f9;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  font-family: system-ui, sans-serif;
+  color: var(--text);
+}
+
+/* ---------- TOP BAR ---------- */
+.top-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: 16px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.theme-toggle {
+  background: none;
+  border: none;
+  font-size: 1.4rem;
+  cursor: pointer;
+}
+
+/* ---------- CENTER CARD ---------- */
+.generator-wrapper {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.generator-card {
+  width: 360px;
+  background: var(--card);
+  padding: 24px;
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+
+/* ---------- FORM ---------- */
+.generator-card input,
+.generator-card select,
+.generator-card button {
+  width: 100%;
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: none;
+  background: var(--input);
+  color: var(--text);
+}
+
+.generator-card button {
+  margin-top: 16px;
+  background: #2563eb;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.row input {
+  width: 80px;
+}
+
+.tagline {
+  text-align: center;
+  font-size: 0.9rem;
+  opacity: 0.85;
+}
+
+/* ---------- RESULT ---------- */
+.result {
+  margin-top: 16px;
+}
+
+.strength {
+  margin-top: 6px;
+  font-size: 0.85rem;
+}
+
+.strength.strong {
+  color: #22c55e;
+}
+
+.strength.medium {
+  color: #facc15;
+}
+
+.strength.weak {
+  color: #ef4444;
+}
+
+.error {
+  margin-top: 12px;
+  color: #ef4444;
+  font-size: 0.85rem;
+}
+
+.result-box {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.password-output {
+  flex: 1;
+  padding: 12px;
+  font-family: monospace;
+  font-size: 15px;
+  border-radius: 8px;
+  border: 1px solid var(--border, #333);
+  background: var(--bg-secondary, #111);
+  color: var(--text, #fff);
+}
+
+.copy-btn {
+  padding: 0 16px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  background: linear-gradient(135deg, #4f46e5, #6366f1);
+  color: white;
+  transition: all 0.2s ease;
+}
+
+.copy-btn:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+.rm-space-between{
+    justify-content: unset;
+}

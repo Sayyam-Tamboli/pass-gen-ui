@@ -1,16 +1,22 @@
+const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
+
 export async function generatePassword(payload) {
-  const res = await fetch(
-    `${import.meta.env.VITE_API_BASE_URL}/api/generate`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    }
-  );
+  const res = await fetch(`${API_BASE}/api/generate`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      master: payload.master.trim(),
+      context: payload.context.trim(),
+      length: payload.length,
+      charset: payload.charset || "all",
+    }),
+  });
 
   if (!res.ok) {
-    const text = await res.text();
-    throw new Error(text || "API error");
+    const err = await res.json();
+    throw new Error(err.error || "API error");
   }
 
   return res.json();

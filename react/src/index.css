@@ -1,68 +1,125 @@
-:root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
+/* ---------- RESET ---------- */
+* {
+  box-sizing: border-box;
+  font-family: Inter, system-ui, sans-serif;
 }
 
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
   min-height: 100vh;
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+/* ---------- THEME VARS ---------- */
+:root {
+  --bg-dark: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+  --bg-light: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+  --card-dark: rgba(255, 255, 255, 0.08);
+  --card-light: rgba(255, 255, 255, 0.95);
+  --text-dark: #ffffff;
+  --text-light: #111827;
 }
 
-button {
+body[data-theme="dark"] {
+  --bg: var(--bg-dark);
+  --card: var(--card-dark);
+  --text: var(--text-dark);
+}
+
+body[data-theme="light"] {
+  --bg: var(--bg-light);
+  --card: var(--card-light);
+  --text: var(--text-light);
+}
+
+/* ---------- LAYOUT ---------- */
+.gradient-bg {
+  min-height: 100vh;
+  background: var(--bg);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.glass {
+  background: var(--card);
+  color: var(--text);
+  backdrop-filter: blur(12px);
+  border-radius: 16px;
+  padding: 28px;
+  width: 360px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+}
+
+/* ---------- CARD ---------- */
+.card h1 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+input,
+select {
+  width: 100%;
+  padding: 10px;
   border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+  border: none;
+  margin-bottom: 12px;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
+.row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.primary {
+  width: 100%;
+  padding: 12px;
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.primary:disabled {
+  opacity: 0.6;
+}
+
+.result {
+  margin-top: 20px;
+}
+
+.copy-row {
+  display: flex;
+  gap: 8px;
+}
+
+.copy-btn {
+  padding: 8px 12px;
+  border: none;
+  background: #10b981;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.timer {
+  font-size: 12px;
+  opacity: 0.7;
+  margin-left: 6px;
+}
+
+small {
+  display: block;
+  margin-top: 6px;
+}
+
+/* ---------- THEME BUTTON ---------- */
+.theme-toggle {
+  float: right;
+  border: none;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font-size: 13px;
 }
