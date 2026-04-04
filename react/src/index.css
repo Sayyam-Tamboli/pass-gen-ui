@@ -17,18 +17,35 @@ body {
   --card-light: rgba(255, 255, 255, 0.95);
   --text-dark: #ffffff;
   --text-light: #111827;
+  --primary-color: #2563eb;
+  --text-muted: #999;
+  --border-color: #ddd;
 }
 
 body[data-theme="dark"] {
-  --bg: var(--bg-dark);
-  --card: var(--card-dark);
-  --text: var(--text-dark);
+  --bg-color: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+  --card-bg: rgba(255, 255, 255, 0.08);
+  --text-color: #ffffff;
+  --input-bg: rgba(255, 255, 255, 0.1);
+  --table-header-bg: rgba(255, 255, 255, 0.15);
+  --row-hover-bg: rgba(255, 255, 255, 0.12);
+  --bg: var(--bg-color);
+  --card: var(--card-bg);
+  --text: var(--text-color);
 }
 
 body[data-theme="light"] {
-  --bg: var(--bg-light);
-  --card: var(--card-light);
-  --text: var(--text-light);
+  --bg-color: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+  --card-bg: rgba(255, 255, 255, 0.95);
+  --text-color: #111827;
+  --input-bg: #f0f0f0;
+  --table-header-bg: #e8f1f7;
+  --row-hover-bg: #f9f9f9;
+  --text-muted: #666;
+  --border-color: #ccc;
+  --bg: var(--bg-color);
+  --card: var(--card-bg);
+  --text: var(--text-color);
 }
 
 /* ---------- LAYOUT ---------- */
@@ -122,4 +139,104 @@ small {
   color: inherit;
   cursor: pointer;
   font-size: 13px;
+}
+
+/* ---------- TOP BAR ---------- */
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 30px;
+  background: var(--card-bg);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+.logo {
+  font-size: 20px;
+  font-weight: bold;
+  color: var(--text-color);
+}
+
+.top-bar-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.user-info {
+  color: var(--text-color);
+  font-size: 14px;
+}
+
+.logout-btn {
+  padding: 8px 16px;
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: opacity 0.3s;
+}
+
+.logout-btn:hover {
+  opacity: 0.9;
+}
+
+.btn-back {
+  padding: 8px 16px;
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: bold;
+  transition: opacity 0.3s;
+}
+
+.btn-back:hover {
+  opacity: 0.9;
+}
+
+/* ---------- BUTTONS ---------- */
+.btn-add {
+  width: 100%;
+  padding: 12px;
+  margin-top: 10px;
+  background: #10b981;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: opacity 0.3s;
+}
+
+.btn-add:hover {
+  opacity: 0.9;
+}
+
+/* ---------- SUCCESS MESSAGE ---------- */
+.success {
+  background: #d1fae5;
+  color: #065f46;
+  padding: 12px;
+  border-radius: 6px;
+  margin-top: 10px;
+  font-size: 13px;
+  text-align: center;
+}
+
+/* ---------- ERROR ---------- */
+.error {
+  background: #fee;
+  color: #c33;
+  padding: 12px;
+  border-radius: 6px;
+  margin-top: 10px;
+  font-size: 13px;
+  text-align: center;
 }
