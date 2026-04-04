@@ -32,10 +32,10 @@ jobs:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SERVER_SSH_KEY }}
-          source: "react/dist"
-          target: "~/pass-gen-ui"
+          source: "react/dist/"
+          target: "/srv/pass-gen-ui"
           rm: true
-          overwrite: true
+          strip_components: 1
 
       - name: Set Permissions & Restart Service
         uses: appleboy/ssh-action@master
@@ -44,5 +44,10 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SERVER_SSH_KEY }}
           script: |
-            chmod -R 755 ~/pass-gen-ui/dist
-            echo "✅ Deployment completed successfully!"
+            # Set permissions
+            sudo chown -R www-data:www-data /srv/pass-gen-ui
+            sudo chmod -R 755 /srv/pass-gen-ui
+            
+            # Reload nginx
+            sudo systemctl reload nginx
+            echo "✅ Deployment to /srv/pass-gen-ui completed successfully!"

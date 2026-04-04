@@ -1,0 +1,54 @@
+Based on your controllers (AuthController, PasswordController, PasswordEntryController, HealthController), these are the APIs to test.
+BASE_URL="http://localhost:8080"
+1) App health (custom)
+curl -i "$BASE_URL/health"
+2) API health (inside PasswordController)
+curl -i "$BASE_URL/api/health"
+3) Register user
+curl -i -X POST "$BASE_URL/api/auth/register" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username":"sayyam",
+    "password":"Pass@1234",
+    "email":"sayyam@example.com"
+  }'
+4) Login user
+curl -i -X POST "$BASE_URL/api/auth/login" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username":"sayyam",
+    "password":"Pass@1234"
+  }'
+5) Generate password
+Charset values from PasswordService: all (default), noSymbols, lettersOnly, digitsOnly.
+curl -i -X POST "$BASE_URL/api/generate" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "master":"MyMasterSecret",
+    "context":"github.com/sayyam",
+    "length":16,
+    "charset":"noSymbols"
+  }'
+6) Add password metadata entry
+Use userId returned from register/login response.
+USER_ID=1
+curl -i -X POST "$BASE_URL/api/passwords/add" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "userId":'"$USER_ID"',
+    "context":"github.com/sayyam",
+    "site":"GitHub",
+    "charset":"noSymbols",
+    "passwordLength":16
+  }'
+7) Get saved password entries for user
+curl -i "$BASE_URL/api/passwords/$USER_ID"
+8) Actuator health (if enabled in your env)
+From your application.properties, actuator base path is /actuator.
+curl -i "$BASE_URL/actuator/health"
+9) Actuator info
+curl -i "$BASE_URL/actuator/info"
+10) Actuator mappings
+curl -i "$BASE_URL/actuator/mappings"
+For Postman: Import -> Raw text, paste any of the above cURL commands directly.
+If you want, I can next give you a single Postman Collection v2.1 JSON (with env vars and example tests) so you can import once and run all endpoints.
