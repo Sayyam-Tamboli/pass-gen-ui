@@ -33,7 +33,7 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SERVER_SSH_KEY }}
           source: "react/dist/"
-          target: "/srv/pass-gen-ui"
+          target: "/var/www/html"
           rm: true
           strip_components: 1
 
@@ -45,9 +45,9 @@ jobs:
           key: ${{ secrets.VPS_SERVER_SSH_KEY }}
           script: |
             # Set permissions
-            sudo chown -R www-data:www-data /srv/pass-gen-ui
-            sudo chmod -R 755 /srv/pass-gen-ui
+            sudo chown -R www-data:www-data /var/www/html
+            sudo chmod -R 755 /var/www/html
             
             # Reload nginx
             sudo systemctl reload nginx
-            echo "✅ Deployment to /srv/pass-gen-ui completed successfully!"
+            echo "✅ Deployment to /var/www/html completed successfully!"
