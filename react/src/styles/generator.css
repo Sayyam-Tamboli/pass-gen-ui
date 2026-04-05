@@ -161,3 +161,64 @@ body {
 .rm-space-between{
     justify-content: unset;
 }
+
+/* ---------- LENGTH SLIDER ---------- */
+.length-slider {
+  flex: 1;
+  height: 6px;
+  margin: 0;
+  padding: 0;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+  background: linear-gradient(to right, #2563eb 0%, #3b82f6 100%);
+  border-radius: 5px;
+}
+
+.length-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #2563eb;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.length-slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #2563eb;
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* ---------- BUTTONS ---------- */
+.btn-add,
+.btn-back {
+  padding: 10px 16px;
+  margin-top: 8px;
+  background: #10b981;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-add:hover,
+.btn-back:hover {
+  opacity: 0.9;
+  transform: translateY(-2px);
+}
+
+.success {
+  margin-top: 12px;
+  color: #10b981;
+  font-size: 0.9rem;
+  font-weight: 600;
+}

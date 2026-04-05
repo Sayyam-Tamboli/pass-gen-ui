@@ -211,12 +211,19 @@ export default function GeneratorWithAuth({ prefilledEntry, onBack }) {
             </select>
           </div>
 
-          {/* Hidden length input */}
-          <input
-            type="hidden"
-            value={length}
-            onChange={(e) => setLength(+e.target.value)}
-          />
+          {/* Length input */}
+          <div className="row rm-space-between">
+            <label htmlFor="length-input">Password Length: {length}</label>
+            <input
+              id="length-input"
+              type="range"
+              min="8"
+              max="32"
+              value={length}
+              onChange={(e) => setLength(+e.target.value)}
+              className="length-slider"
+            />
+          </div>
 
           <button onClick={handleGenerate}>Generate Password</button>
 

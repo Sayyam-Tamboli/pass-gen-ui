@@ -10,14 +10,27 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     const savedUser = localStorage.getItem("user");
     if (savedUser) {
-      setUser(JSON.parse(savedUser));
+      const userData = JSON.parse(savedUser);
+      // Ensure user object has 'id' field
+      const normalizedUser = {
+        id: userData.id || userData.userId || userData.user_id,
+        ...userData
+      };
+      setUser(normalizedUser);
     }
     setLoading(false);
   }, []);
 
   const login = (userData) => {
-    setUser(userData);
-    localStorage.setItem("user", JSON.stringify(userData));
+    // Ensure user object has 'id' field - handle different backend response formats
+    const normalizedUser = {
+      id: userData.id || userData.userId || userData.user_id,
+      username: userData.username,
+      email: userData.email,
+      ...userData
+    };
+    setUser(normalizedUser);
+    localStorage.setItem("user", JSON.stringify(normalizedUser));
   };
 
   const logout = () => {
