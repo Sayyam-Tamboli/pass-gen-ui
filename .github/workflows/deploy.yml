@@ -33,7 +33,7 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SERVER_SSH_KEY }}
           source: "react/dist/"
-          target: "/var/www/html"
+          target: "/srv/pass-gen-ui"
           rm: true
           strip_components: 1
 
@@ -45,8 +45,8 @@ jobs:
           key: ${{ secrets.VPS_SERVER_SSH_KEY }}
           script: |
             # Set permissions
-            sudo chown -R www-data:www-data /var/www/html
-            sudo chmod -R 755 /var/www/html
+            sudo chown -R www-data:www-data /srv/pass-gen-ui
+            sudo chmod -R 755 /srv/pass-gen-ui
             
             # Reload nginx
             sudo systemctl reload nginx
