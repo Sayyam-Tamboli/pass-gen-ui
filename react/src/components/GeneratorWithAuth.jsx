@@ -14,7 +14,7 @@ export default function GeneratorWithAuth({ prefilledEntry, onBack }) {
   const [master, setMaster] = useState("");
   const [site, setSite] = useState(prefilledEntry?.site || "");
   const [keyword, setKeyword] = useState(parseKeyword(prefilledEntry?.context));
-  const [length, setLength] = useState(16);
+  const [length, setLength] = useState(prefilledEntry?.passwordLength || 16);
   const [charset, setCharset] = useState(prefilledEntry?.charset || "all");
 
   const [password, setPassword] = useState("");
@@ -240,7 +240,7 @@ export default function GeneratorWithAuth({ prefilledEntry, onBack }) {
               </div>
             </div>
           )}
-          {user && generated && (
+          {user && generated && !prefilledEntry && (
             <div>
               <button
                 className="btn-add"
