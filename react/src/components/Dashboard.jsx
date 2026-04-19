@@ -55,7 +55,7 @@ export default function Dashboard({ onGenerateNew, onLogout }) {
         <div className="dashboard-card">
           <div className="dashboard-header">
             <h2>My Saved Passwords</h2>
-            <button className="btn-primary" onClick={onGenerateNew}>
+            <button className="btn-primary" onClick={() => onGenerateNew()}>
               + Generate New Password
             </button>
           </div>

@@ -4,13 +4,18 @@ import { addPasswordEntry } from "../services/authApi";
 import { useAuth } from "../context/AuthContext";
 import "../styles/generator.css";
 
+function parseKeyword(context) {
+  if (!context) return "";
+  return context.includes("::") ? context.split("::")[1] : "";
+}
+
 export default function GeneratorWithAuth({ prefilledEntry, onBack }) {
   const { user } = useAuth();
   const [master, setMaster] = useState("");
-  const [site, setSite] = useState("");
-  const [keyword, setKeyword] = useState("");
+  const [site, setSite] = useState(prefilledEntry?.site || "");
+  const [keyword, setKeyword] = useState(parseKeyword(prefilledEntry?.context));
   const [length, setLength] = useState(16);
-  const [charset, setCharset] = useState("all");
+  const [charset, setCharset] = useState(prefilledEntry?.charset || "all");
 
   const [password, setPassword] = useState("");
   const [strength, setStrength] = useState("");
@@ -20,21 +25,11 @@ export default function GeneratorWithAuth({ prefilledEntry, onBack }) {
   const [theme, setTheme] = useState("dark");
   const [addError, setAddError] = useState("");
   const [addSuccess, setAddSuccess] = useState("");
+  const [generated, setGenerated] = useState(false);
 
   const intervalRef = useRef(null);
   const hideTimeoutRef = useRef(null);
   const timerCountDown = 15;
-
-  // Populate from prefilledEntry if provided
-  useEffect(() => {
-    if (prefilledEntry) {
-      setSite(prefilledEntry.site);
-      setKeyword(prefilledEntry.context.includes("::") 
-        ? prefilledEntry.context.split("::")[1] 
-        : "");
-      setCharset(prefilledEntry.charset);
-    }
-  }, [prefilledEntry]);
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
@@ -111,6 +106,7 @@ export default function GeneratorWithAuth({ prefilledEntry, onBack }) {
 
       setPassword(res.password);
       setStrength(calculateStrength(res.password));
+      setGenerated(true);
       startAutoHideTimer(timerCountDown);
       setAddError("");
       setAddSuccess("");
@@ -242,14 +238,16 @@ export default function GeneratorWithAuth({ prefilledEntry, onBack }) {
                   {copied ? "✓ Copied" : "Copy"}
                 </button>
               </div>
-              {user && (
-                <button 
-                  className="btn-add"
-                  onClick={handleAddPassword}
-                >
-                  + Add to My Passwords
-                </button>
-              )}
+            </div>
+          )}
+          {user && generated && (
+            <div>
+              <button
+                className="btn-add"
+                onClick={handleAddPassword}
+              >
+                + Add to My Passwords
+              </button>
               {addError && <div className="error">{addError}</div>}
               {addSuccess && <div className="success">{addSuccess}</div>}
             </div>
