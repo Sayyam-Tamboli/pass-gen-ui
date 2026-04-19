@@ -65,12 +65,20 @@ export async function addPasswordEntry(userId, context, site, charset, passwordL
 }
 
 export async function getPasswordEntries(userId) {
-  const res = await fetch(`${API_BASE}/api/passwords/${userId}`);
+  const url = `${API_BASE}/api/passwords/${userId}`;
+  console.log("[authApi] GET", url);
+  const res = await fetch(url);
+  console.log("[authApi] GET passwords status:", res.status, res.ok);
 
   if (!res.ok) {
-    const err = await res.json();
-    throw new Error(err.error || "Failed to fetch password entries");
+    const text = await res.text();
+    console.error("[authApi] GET passwords error body:", text);
+    let errMsg = "Failed to fetch password entries";
+    try { errMsg = JSON.parse(text).error || errMsg; } catch { /* non-JSON response */ }
+    throw new Error(errMsg);
   }
 
-  return res.json();
+  const data = await res.json();
+  console.log("[authApi] GET passwords data:", data);
+  return data;
 }

@@ -23,9 +23,12 @@ export default function Dashboard({ onGenerateNew, onLogout }) {
   const fetchEntries = async () => {
     try {
       setLoading(true);
+      console.log("[Dashboard] fetching entries for userId:", user.id);
       const data = await getPasswordEntries(user.id);
+      console.log("[Dashboard] entries received:", data);
       setEntries(data || []);
     } catch (err) {
+      console.error("[Dashboard] fetch error:", err);
       setError(err.message);
     } finally {
       setLoading(false);
