@@ -16,6 +16,7 @@ export default function GeneratorWithAuth({ prefilledEntry, onBack }) {
   const [keyword, setKeyword] = useState(parseKeyword(prefilledEntry?.context));
   const [length, setLength] = useState(prefilledEntry?.passwordLength || 16);
   const [charset, setCharset] = useState(prefilledEntry?.charset || "all");
+  const [customInput, setCustomInput] = useState("");
 
   const [password, setPassword] = useState("");
   const [strength, setStrength] = useState("");
@@ -26,6 +27,7 @@ export default function GeneratorWithAuth({ prefilledEntry, onBack }) {
   const [addError, setAddError] = useState("");
   const [addSuccess, setAddSuccess] = useState("");
   const [generated, setGenerated] = useState(false);
+  const [generatedRule, setGeneratedRule] = useState(null);
 
   const intervalRef = useRef(null);
   const hideTimeoutRef = useRef(null);
@@ -88,25 +90,31 @@ export default function GeneratorWithAuth({ prefilledEntry, onBack }) {
 
   const handleGenerate = async () => {
     setError("");
+    const isCustom = charset === "custom";
 
     if (!master || !site) {
       setError("Master password and Site are required");
       return;
     }
 
+    if (isCustom && !customInput.trim()) {
+      setError("Please describe your password requirements");
+      return;
+    }
+
     const context = keyword ? `${site}::${keyword}` : site;
 
     try {
-      const res = await generatePassword({
-        master,
-        context,
-        length,
-        charset,
-      });
+      const res = await generatePassword(
+        isCustom
+          ? { charset: "custom", input: customInput, master, context, length }
+          : { master, context, length, charset }
+      );
 
       setPassword(res.password);
       setStrength(calculateStrength(res.password));
       setGenerated(true);
+      setGeneratedRule(res.rule || null);
       startAutoHideTimer(timerCountDown);
       setAddError("");
       setAddSuccess("");
@@ -130,7 +138,7 @@ export default function GeneratorWithAuth({ prefilledEntry, onBack }) {
 
     try {
       setAddError("");
-      await addPasswordEntry(user.id, context, site, charset, length);
+      await addPasswordEntry(user.id, context, site, charset, length, generatedRule);
       setAddSuccess("✓ Password saved to your account!");
       setTimeout(() => {
         setAddSuccess("");
@@ -149,6 +157,8 @@ export default function GeneratorWithAuth({ prefilledEntry, onBack }) {
       clearTimeout(hideTimeoutRef.current);
     };
   }, []);
+
+  const isCustom = charset === "custom";
 
   return (
     <>
@@ -204,10 +214,26 @@ export default function GeneratorWithAuth({ prefilledEntry, onBack }) {
               <option value="noSymbols">No Symbols</option>
               <option value="lettersOnly">Letters Only</option>
               <option value="digitsOnly">Digits Only</option>
+              <option value="custom">Custom (AI)</option>
             </select>
           </div>
 
-          {/* Length input */}
+          {isCustom && (
+            <div>
+              <textarea
+                placeholder="Describe your password requirements (e.g. 'strong 16 char password for banking with no ambiguous chars')"
+                maxLength={200}
+                value={customInput}
+                onChange={(e) => setCustomInput(e.target.value)}
+                rows={3}
+                style={{ width: "100%", resize: "vertical", boxSizing: "border-box" }}
+              />
+              <div style={{ textAlign: "right", fontSize: "0.75rem", opacity: 0.6 }}>
+                {customInput.length}/200
+              </div>
+            </div>
+          )}
+
           <div className="row rm-space-between">
             <label htmlFor="length-input">Password Length: {length}</label>
             <input

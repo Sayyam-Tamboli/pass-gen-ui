@@ -41,7 +41,7 @@ export async function login(username, password) {
   return res.json();
 }
 
-export async function addPasswordEntry(userId, context, site, charset, passwordLength) {
+export async function addPasswordEntry(userId, context, site, charset, passwordLength, rules) {
   const res = await fetch(`${API_BASE}/api/passwords/add`, {
     method: "POST",
     headers: {
@@ -53,12 +53,30 @@ export async function addPasswordEntry(userId, context, site, charset, passwordL
       site: site.trim(),
       charset,
       passwordLength,
+      ...(rules && { rules }),
     }),
   });
 
   if (!res.ok) {
     const err = await res.json();
     throw new Error(err.error || "Failed to save password entry");
+  }
+
+  return res.json();
+}
+
+export async function regenerateEntry(id, master) {
+  const res = await fetch(`${API_BASE}/api/passwords/${id}/regenerate`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ master }),
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    let errMsg = "Failed to regenerate";
+    try { errMsg = JSON.parse(text).error || errMsg; } catch { /* non-JSON response */ }
+    throw new Error(errMsg);
   }
 
   return res.json();

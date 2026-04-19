@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { getPasswordEntries } from "../services/authApi";
+import { useEffect, useRef, useState } from "react";
+import { getPasswordEntries, regenerateEntry } from "../services/authApi";
 import { useAuth } from "../context/AuthContext";
 import "../styles/dashboard.css";
 
@@ -9,6 +9,15 @@ export default function Dashboard({ onGenerateNew, onLogout }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [theme, setTheme] = useState("dark");
+
+  // Inline regenerate state
+  const [activeRegenId, setActiveRegenId] = useState(null);
+  const [regenMaster, setRegenMaster] = useState("");
+  const [regenLoading, setRegenLoading] = useState(false);
+  const [regenResults, setRegenResults] = useState({}); // { [entryId]: { password, error } }
+  const [regenCountdown, setRegenCountdown] = useState(null);
+  const regenIntervalRef = useRef(null);
+  const regenHideRef = useRef(null);
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
@@ -35,9 +44,55 @@ export default function Dashboard({ onGenerateNew, onLogout }) {
     }
   };
 
+  const handleRegenClick = (entry) => {
+    if (activeRegenId === entry.id) {
+      setActiveRegenId(null);
+      setRegenMaster("");
+    } else {
+      setActiveRegenId(entry.id);
+      setRegenMaster("");
+      setRegenResults((prev) => ({ ...prev, [entry.id]: null }));
+    }
+  };
+
+  const startRegenCountdown = (entryId) => {
+    clearInterval(regenIntervalRef.current);
+    clearTimeout(regenHideRef.current);
+    setRegenCountdown(15);
+
+    regenIntervalRef.current = setInterval(() => {
+      setRegenCountdown((c) => {
+        if (c <= 1) { clearInterval(regenIntervalRef.current); return null; }
+        return c - 1;
+      });
+    }, 1000);
+
+    regenHideRef.current = setTimeout(() => {
+      setRegenResults((prev) => ({ ...prev, [entryId]: null }));
+      setActiveRegenId(null);
+      setRegenMaster("");
+      setRegenCountdown(null);
+    }, 15000);
+  };
+
+  const handleRegenerate = async (entry) => {
+    if (entry.charset !== "custom" && !regenMaster.trim()) return;
+
+    setRegenLoading(true);
+    setRegenResults((prev) => ({ ...prev, [entry.id]: null }));
+    try {
+      const res = await regenerateEntry(entry.id, regenMaster);
+      setRegenResults((prev) => ({ ...prev, [entry.id]: { password: res.password } }));
+      startRegenCountdown(entry.id);
+    } catch (err) {
+      setRegenResults((prev) => ({ ...prev, [entry.id]: { error: err.message } }));
+    } finally {
+      setRegenLoading(false);
+    }
+  };
+
   return (
     <>
-      {/* Top bar */}
       <header className="top-bar">
         <div className="logo">🔐 PassGen</div>
         <div className="top-bar-right">
@@ -83,20 +138,64 @@ export default function Dashboard({ onGenerateNew, onLogout }) {
                   </tr>
                 </thead>
                 <tbody>
-                  {entries.map((entry, idx) => (
-                    <tr key={idx}>
-                      <td>{entry.site}</td>
-                      <td>{entry.context}</td>
-                      <td>{entry.charset}</td>
-                      <td>
-                        <button 
-                          className="btn-small"
-                          onClick={() => onGenerateNew(entry)}
-                        >
-                          Regenerate
-                        </button>
-                      </td>
-                    </tr>
+                  {entries.map((entry) => (
+                    <>
+                      <tr key={entry.id}>
+                        <td>{entry.site}</td>
+                        <td>{entry.context}</td>
+                        <td>{entry.charset}</td>
+                        <td>
+                          <button
+                            className="btn-small"
+                            onClick={() => handleRegenClick(entry)}
+                          >
+                            {activeRegenId === entry.id ? "Cancel" : "Regenerate"}
+                          </button>
+                        </td>
+                      </tr>
+                      {activeRegenId === entry.id && (
+                        <tr key={`${entry.id}-regen`}>
+                          <td colSpan={5} style={{ background: "var(--card-bg, #1a1a2e)", padding: "0.75rem 1rem" }}>
+                            <div style={{ display: "flex", gap: "0.5rem", alignItems: "center", flexWrap: "wrap" }}>
+                              <input
+                                type="password"
+                                placeholder="Enter master password"
+                                value={regenMaster}
+                                onChange={(e) => setRegenMaster(e.target.value)}
+                                onKeyDown={(e) => e.key === "Enter" && handleRegenerate(entry)}
+                                style={{ flex: 1, minWidth: "180px" }}
+                              />
+                              <button
+                                className="btn-small"
+                                onClick={() => handleRegenerate(entry)}
+                                disabled={regenLoading || !regenMaster.trim()}
+                              >
+                                {regenLoading ? "Generating..." : "Generate"}
+                              </button>
+                            </div>
+                            {regenResults[entry.id]?.password && (
+                              <div style={{ marginTop: "0.5rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                                <input
+                                  readOnly
+                                  value={regenResults[entry.id].password}
+                                  style={{ flex: 1, fontFamily: "monospace" }}
+                                />
+                                {regenCountdown !== null && (
+                                  <span style={{ fontSize: "0.75rem", opacity: 0.6, whiteSpace: "nowrap" }}>
+                                    hides in {regenCountdown}s
+                                  </span>
+                                )}
+                              </div>
+                            )}
+                            {regenResults[entry.id]?.error && (
+                              <div className="error-message" style={{ marginTop: "0.5rem" }}>
+                                {regenResults[entry.id].error}
+                              </div>
+                            )}
+                          </td>
+                        </tr>
+                      )}
+                    </>
                   ))}
                 </tbody>
               </table>
