@@ -82,6 +82,19 @@ export async function regenerateEntry(id, master) {
   return res.json();
 }
 
+export async function deletePasswordEntry(id) {
+  const res = await fetch(`${API_BASE}/api/passwords/${id}`, {
+    method: "DELETE",
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    let errMsg = "Failed to delete password entry";
+    try { errMsg = JSON.parse(text).error || errMsg; } catch { /* non-JSON */ }
+    throw new Error(errMsg);
+  }
+}
+
 export async function getPasswordEntries(userId) {
   const url = `${API_BASE}/api/passwords/${userId}`;
   console.log("[authApi] GET", url);

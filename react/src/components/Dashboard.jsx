@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { getPasswordEntries, regenerateEntry } from "../services/authApi";
+import { deletePasswordEntry, getPasswordEntries, regenerateEntry } from "../services/authApi";
 import { useAuth } from "../context/AuthContext";
 import "../styles/dashboard.css";
 
@@ -20,6 +20,9 @@ export default function Dashboard({ onGenerateNew, onLogout }) {
   const [copiedId, setCopiedId] = useState(null);
   const regenIntervalRef = useRef(null);
   const regenHideRef = useRef(null);
+
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   useEffect(() => {
     document.body.setAttribute("data-theme", theme);
@@ -43,6 +46,7 @@ export default function Dashboard({ onGenerateNew, onLogout }) {
   }, [user, fetchEntries]);
 
   const handleRegenClick = (entry) => {
+    setConfirmDeleteId(null);
     if (activeRegenId === entry.id) {
       setActiveRegenId(null);
       setRegenMaster("");
@@ -60,10 +64,7 @@ export default function Dashboard({ onGenerateNew, onLogout }) {
 
     regenIntervalRef.current = setInterval(() => {
       setRegenCountdown((c) => {
-        if (c <= 1) {
-          clearInterval(regenIntervalRef.current);
-          return null;
-        }
+        if (c <= 1) { clearInterval(regenIntervalRef.current); return null; }
         return c - 1;
       });
     }, 1000);
@@ -78,21 +79,14 @@ export default function Dashboard({ onGenerateNew, onLogout }) {
 
   const handleRegenerate = async (entry) => {
     if (!regenMaster.trim()) return;
-
     setRegenLoading(true);
     setRegenResults((prev) => ({ ...prev, [entry.id]: null }));
     try {
       const res = await regenerateEntry(entry.id, regenMaster);
-      setRegenResults((prev) => ({
-        ...prev,
-        [entry.id]: { password: res.password },
-      }));
+      setRegenResults((prev) => ({ ...prev, [entry.id]: { password: res.password } }));
       startRegenCountdown(entry.id);
     } catch (err) {
-      setRegenResults((prev) => ({
-        ...prev,
-        [entry.id]: { error: err.message },
-      }));
+      setRegenResults((prev) => ({ ...prev, [entry.id]: { error: err.message } }));
     } finally {
       setRegenLoading(false);
     }
@@ -111,6 +105,24 @@ export default function Dashboard({ onGenerateNew, onLogout }) {
     }
     setCopiedId(entryId);
     setTimeout(() => setCopiedId(null), 2000);
+  };
+
+  const handleDeleteClick = (entryId) => {
+    setActiveRegenId(null);
+    setConfirmDeleteId(entryId === confirmDeleteId ? null : entryId);
+  };
+
+  const handleConfirmDelete = async (entryId) => {
+    setDeleteLoading(true);
+    try {
+      await deletePasswordEntry(entryId);
+      setEntries((prev) => prev.filter((e) => e.id !== entryId));
+      setConfirmDeleteId(null);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setDeleteLoading(false);
+    }
   };
 
   return (
@@ -157,7 +169,7 @@ export default function Dashboard({ onGenerateNew, onLogout }) {
                     <th>Site</th>
                     <th>Context</th>
                     <th>Charset</th>
-                    <th>Action</th>
+                    <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -167,13 +179,39 @@ export default function Dashboard({ onGenerateNew, onLogout }) {
                         <td data-label="Site">{entry.site}</td>
                         <td data-label="Context">{entry.context}</td>
                         <td data-label="Charset">{entry.charset}</td>
-                        <td data-label="Action">
-                          <button
-                            className={`btn-small${activeRegenId === entry.id ? " cancel" : ""}`}
-                            onClick={() => handleRegenClick(entry)}
-                          >
-                            {activeRegenId === entry.id ? "Cancel" : "Regenerate"}
-                          </button>
+                        <td data-label="Actions">
+                          <div className="action-btns">
+                            <button
+                              className={`btn-small${activeRegenId === entry.id ? " cancel" : ""}`}
+                              onClick={() => handleRegenClick(entry)}
+                            >
+                              {activeRegenId === entry.id ? "Cancel" : "Regenerate"}
+                            </button>
+                            {confirmDeleteId === entry.id ? (
+                              <>
+                                <button
+                                  className="btn-small btn-confirm-delete"
+                                  onClick={() => handleConfirmDelete(entry.id)}
+                                  disabled={deleteLoading}
+                                >
+                                  {deleteLoading ? "Deleting..." : "Confirm"}
+                                </button>
+                                <button
+                                  className="btn-small cancel"
+                                  onClick={() => setConfirmDeleteId(null)}
+                                >
+                                  Cancel
+                                </button>
+                              </>
+                            ) : (
+                              <button
+                                className="btn-small btn-delete"
+                                onClick={() => handleDeleteClick(entry.id)}
+                              >
+                                Delete
+                              </button>
+                            )}
+                          </div>
                         </td>
                       </tr>
 
@@ -187,9 +225,7 @@ export default function Dashboard({ onGenerateNew, onLogout }) {
                                   placeholder="Enter master password"
                                   value={regenMaster}
                                   onChange={(e) => setRegenMaster(e.target.value)}
-                                  onKeyDown={(e) =>
-                                    e.key === "Enter" && handleRegenerate(entry)
-                                  }
+                                  onKeyDown={(e) => e.key === "Enter" && handleRegenerate(entry)}
                                   autoComplete="off"
                                 />
                                 <button
@@ -203,33 +239,21 @@ export default function Dashboard({ onGenerateNew, onLogout }) {
 
                               {regenResults[entry.id]?.password && (
                                 <div className="regen-result-row">
-                                  <input
-                                    readOnly
-                                    value={regenResults[entry.id].password}
-                                  />
+                                  <input readOnly value={regenResults[entry.id].password} />
                                   <button
                                     className="btn-copy-regen"
-                                    onClick={() =>
-                                      handleCopyRegen(
-                                        entry.id,
-                                        regenResults[entry.id].password
-                                      )
-                                    }
+                                    onClick={() => handleCopyRegen(entry.id, regenResults[entry.id].password)}
                                   >
                                     {copiedId === entry.id ? "✓ Copied" : "Copy"}
                                   </button>
                                   {regenCountdown !== null && (
-                                    <span className="regen-countdown">
-                                      hides in {regenCountdown}s
-                                    </span>
+                                    <span className="regen-countdown">hides in {regenCountdown}s</span>
                                   )}
                                 </div>
                               )}
 
                               {regenResults[entry.id]?.error && (
-                                <div className="error-message">
-                                  {regenResults[entry.id].error}
-                                </div>
+                                <div className="error-message">{regenResults[entry.id].error}</div>
                               )}
                             </div>
                           </td>

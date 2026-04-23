@@ -117,6 +117,14 @@
   background: var(--row-hover-bg);
 }
 
+/* ---------- ACTION BUTTONS CELL ---------- */
+.action-btns {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
 /* ---------- SMALL BUTTONS ---------- */
 .btn-small {
   padding: 6px 13px;
@@ -144,6 +152,32 @@
 .btn-small.cancel:hover {
   background: var(--row-hover-bg);
   color: var(--text-color);
+}
+
+.btn-delete {
+  color: #ef4444;
+  border-color: #ef4444;
+}
+
+.btn-delete:hover {
+  background: #ef4444;
+  color: white;
+}
+
+.btn-confirm-delete {
+  color: white;
+  background: #ef4444;
+  border-color: #ef4444;
+}
+
+.btn-confirm-delete:hover:not(:disabled) {
+  background: #dc2626;
+  border-color: #dc2626;
+}
+
+.btn-confirm-delete:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 /* ---------- REGEN EXPAND ROW ---------- */
