@@ -1,51 +1,67 @@
-/* Dashboard Wrapper */
-.dashboard-wrapper {
-  max-width: 1000px;
-  margin: 60px auto 30px;
-  padding: 0 20px;
+/* ---------- LAYOUT ---------- */
+.dashboard-page {
+  min-height: 100vh;
+  background: var(--bg-color);
 }
 
+.dashboard-wrapper {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 84px 20px 48px;
+}
+
+/* ---------- CARD ---------- */
 .dashboard-card {
   background: var(--card-bg);
-  border-radius: 12px;
-  padding: 30px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--card-border);
+  border-radius: 20px;
+  padding: 28px 28px 32px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
 }
 
+/* ---------- HEADER ROW ---------- */
 .dashboard-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 30px;
+  margin-bottom: 24px;
   flex-wrap: wrap;
-  gap: 15px;
+  gap: 14px;
 }
 
 .dashboard-header h2 {
   color: var(--text-color);
   margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.3px;
 }
 
 .btn-primary {
   padding: 10px 20px;
-  background: var(--primary-color);
+  background: #2563eb;
   color: white;
   border: none;
-  border-radius: 6px;
-  font-weight: bold;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 13.5px;
   cursor: pointer;
-  transition: opacity 0.3s;
+  transition: background 0.2s, transform 0.1s;
 }
 
 .btn-primary:hover {
-  opacity: 0.9;
+  background: #1d4ed8;
+  transform: translateY(-1px);
 }
 
+/* ---------- LOADING / EMPTY ---------- */
 .loading {
   text-align: center;
   color: var(--text-muted);
-  padding: 40px 20px;
-  font-size: 16px;
+  padding: 48px 20px;
+  font-size: 15px;
 }
 
 .empty-state {
@@ -55,13 +71,15 @@
 }
 
 .empty-state p {
-  font-size: 16px;
+  font-size: 15px;
   margin: 0;
 }
 
-/* Table Styles */
+/* ---------- TABLE ---------- */
 .passwords-table {
   overflow-x: auto;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
 }
 
 .passwords-table table {
@@ -74,34 +92,258 @@
 }
 
 .passwords-table th {
-  padding: 15px;
+  padding: 13px 16px;
   text-align: left;
-  font-weight: bold;
-  color: var(--text-color);
-  border-bottom: 2px solid var(--border-color);
+  font-size: 11.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .passwords-table td {
-  padding: 15px;
+  padding: 14px 16px;
   border-bottom: 1px solid var(--border-color);
   color: var(--text-color);
+  font-size: 14px;
 }
 
-.passwords-table tbody tr:hover {
+.passwords-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.passwords-table tbody tr:hover > td {
   background: var(--row-hover-bg);
 }
 
+/* ---------- SMALL BUTTONS ---------- */
 .btn-small {
-  padding: 6px 12px;
-  background: var(--primary-color);
-  color: white;
-  border: none;
-  border-radius: 4px;
-  font-size: 13px;
+  padding: 6px 13px;
+  background: transparent;
+  color: #2563eb;
+  border: 1px solid #2563eb;
+  border-radius: 7px;
+  font-size: 12.5px;
+  font-weight: 600;
   cursor: pointer;
-  transition: opacity 0.3s;
+  transition: all 0.2s;
+  white-space: nowrap;
 }
 
 .btn-small:hover {
-  opacity: 0.9;
+  background: #2563eb;
+  color: white;
+}
+
+.btn-small.cancel {
+  color: var(--text-muted);
+  border-color: var(--border-color);
+}
+
+.btn-small.cancel:hover {
+  background: var(--row-hover-bg);
+  color: var(--text-color);
+}
+
+/* ---------- REGEN EXPAND ROW ---------- */
+.regen-row td {
+  padding: 0 !important;
+  border-bottom: 1px solid var(--border-color) !important;
+}
+
+.regen-panel {
+  padding: 14px 16px;
+  background: var(--table-header-bg);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  animation: expandDown 0.2s ease;
+}
+
+@keyframes expandDown {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.regen-input-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.regen-input-row input {
+  flex: 1;
+  min-width: 180px;
+  padding: 10px 13px;
+  border-radius: 8px;
+  border: 1.5px solid var(--border-color);
+  background: var(--input-bg);
+  color: var(--text-color);
+  font-size: 13.5px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
+}
+
+.regen-input-row input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px var(--input-focus);
+}
+
+/* ---------- REGEN RESULT ---------- */
+.regen-result-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.regen-result-row input {
+  flex: 1;
+  padding: 10px 13px;
+  border-radius: 8px;
+  border: 1.5px solid var(--border-color);
+  background: var(--input-bg);
+  color: var(--text-color);
+  font-family: "Courier New", Courier, monospace;
+  font-size: 13.5px;
+  letter-spacing: 0.4px;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.regen-countdown {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.btn-copy-regen {
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 12.5px;
+  background: #10b981;
+  color: white;
+  transition: background 0.2s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.btn-copy-regen:hover {
+  background: #059669;
+}
+
+/* ---------- MOBILE ---------- */
+@media (max-width: 600px) {
+  .dashboard-wrapper {
+    padding: 76px 12px 32px;
+  }
+
+  .dashboard-card {
+    padding: 20px 16px 24px;
+    border-radius: 16px;
+  }
+
+  .dashboard-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+
+  .btn-primary {
+    width: 100%;
+    text-align: center;
+  }
+
+  /* Stack table as cards on mobile */
+  .passwords-table {
+    border: none;
+    border-radius: 0;
+  }
+
+  .passwords-table table,
+  .passwords-table thead,
+  .passwords-table tbody,
+  .passwords-table th,
+  .passwords-table td,
+  .passwords-table tr {
+    display: block;
+  }
+
+  .passwords-table thead {
+    display: none;
+  }
+
+  .passwords-table tbody tr {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    margin-bottom: 10px;
+    padding: 14px 14px 10px;
+  }
+
+  .passwords-table tbody tr:hover > td {
+    background: transparent;
+  }
+
+  .passwords-table td {
+    border: none;
+    padding: 4px 0;
+    font-size: 13.5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .passwords-table td::before {
+    content: attr(data-label);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+    min-width: 70px;
+  }
+
+  .regen-row td {
+    padding: 0 !important;
+  }
+
+  .regen-panel {
+    border-radius: 0 0 12px 12px;
+  }
+
+  .regen-input-row {
+    flex-direction: column;
+  }
+
+  .regen-input-row input,
+  .regen-input-row .btn-small {
+    width: 100%;
+  }
+
+  .regen-result-row {
+    flex-wrap: wrap;
+  }
+
+  .btn-copy-regen {
+    flex: 1;
+  }
+}
+
+/* ---------- ERROR IN PANEL ---------- */
+.error-message {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  text-align: center;
+  font-weight: 500;
 }

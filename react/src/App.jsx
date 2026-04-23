@@ -12,7 +12,12 @@ function AppContent() {
   const [authMode, setAuthMode] = useState("login"); // login | register
   const [prefilledEntry, setPrefilledEntry] = useState(null);
 
-  if (loading) return <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>Loading...</div>;
+  if (loading) return (
+    <div className="loading-screen">
+      <div className="spinner" />
+      <span>Loading PassGen...</span>
+    </div>
+  );
 
   // Not logged in - show auth pages
   if (!user) {

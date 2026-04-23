@@ -4,6 +4,20 @@ import { addPasswordEntry } from "../services/authApi";
 import { useAuth } from "../context/AuthContext";
 import "../styles/generator.css";
 
+function EyeIcon({ open }) {
+  return open ? (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+      <circle cx="12" cy="12" r="3" />
+    </svg>
+  ) : (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24" />
+      <line x1="1" y1="1" x2="23" y2="23" />
+    </svg>
+  );
+}
+
 function parseKeyword(context) {
   if (!context) return "";
   return context.includes("::") ? context.split("::")[1] : "";
@@ -12,6 +26,7 @@ function parseKeyword(context) {
 export default function GeneratorWithAuth({ prefilledEntry, onBack }) {
   const { user } = useAuth();
   const [master, setMaster] = useState("");
+  const [showMaster, setShowMaster] = useState(false);
   const [site, setSite] = useState(prefilledEntry?.site || "");
   const [keyword, setKeyword] = useState(parseKeyword(prefilledEntry?.context));
   const [length, setLength] = useState(prefilledEntry?.passwordLength || 16);
@@ -23,17 +38,21 @@ export default function GeneratorWithAuth({ prefilledEntry, onBack }) {
   const [error, setError] = useState("");
   const [countdown, setCountdown] = useState(null);
   const [copied, setCopied] = useState(false);
-  const [theme, setTheme] = useState("dark");
+  const [theme, setTheme] = useState(
+    document.body.getAttribute("data-theme") || "dark"
+  );
   const [addError, setAddError] = useState("");
   const [addSuccess, setAddSuccess] = useState("");
   const [generated, setGenerated] = useState(false);
   const [generatedRule, setGeneratedRule] = useState(null);
+  const [generating, setGenerating] = useState(false);
 
   const intervalRef = useRef(null);
   const hideTimeoutRef = useRef(null);
   const timerCountDown = 15;
 
   useEffect(() => {
+    document.body.setAttribute("data-theme", theme);
     document.documentElement.setAttribute("data-theme", theme);
   }, [theme]);
 
@@ -61,7 +80,8 @@ export default function GeneratorWithAuth({ prefilledEntry, onBack }) {
       /[A-Z]/.test(pwd) &&
       /\d/.test(pwd) &&
       /[^A-Za-z0-9]/.test(pwd)
-    ) return "Strong";
+    )
+      return "Strong";
     if (pwd.length >= 10) return "Medium";
     return "Weak";
   };
@@ -104,6 +124,7 @@ export default function GeneratorWithAuth({ prefilledEntry, onBack }) {
 
     const context = keyword ? `${site}::${keyword}` : site;
 
+    setGenerating(true);
     try {
       const res = await generatePassword(
         isCustom
@@ -120,6 +141,8 @@ export default function GeneratorWithAuth({ prefilledEntry, onBack }) {
       setAddSuccess("");
     } catch (e) {
       setError(e.message || "Failed to generate password");
+    } finally {
+      setGenerating(false);
     }
   };
 
@@ -139,7 +162,7 @@ export default function GeneratorWithAuth({ prefilledEntry, onBack }) {
     try {
       setAddError("");
       await addPasswordEntry(user.id, context, site, charset, length, generatedRule);
-      setAddSuccess("✓ Password saved to your account!");
+      setAddSuccess("Password saved to your account!");
       setTimeout(() => {
         setAddSuccess("");
         setPassword("");
@@ -159,22 +182,23 @@ export default function GeneratorWithAuth({ prefilledEntry, onBack }) {
   }, []);
 
   const isCustom = charset === "custom";
+  const strengthLevel = strength.toLowerCase();
 
   return (
     <>
-      {/* Top bar */}
       <header className="top-bar">
         <div className="logo">🔐 PassGen</div>
         <div className="top-bar-right">
           <button
             className="theme-toggle"
             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            aria-label="Toggle theme"
           >
             {theme === "dark" ? "🌙" : "☀️"}
           </button>
           {onBack && (
             <button className="btn-back" onClick={onBack}>
-              ← Back to Dashboard
+              ← Dashboard
             </button>
           )}
         </div>
@@ -188,12 +212,27 @@ export default function GeneratorWithAuth({ prefilledEntry, onBack }) {
             <strong>We never store your passwords.</strong>
           </p>
 
-          <input
-            type="password"
-            placeholder="Master password"
-            value={master}
-            onChange={(e) => setMaster(e.target.value)}
-          />
+          {/* Master password */}
+          <div className="field-group">
+            <div className="password-input-wrap">
+              <input
+                type={showMaster ? "text" : "password"}
+                placeholder="Master password"
+                value={master}
+                onChange={(e) => setMaster(e.target.value)}
+                autoComplete="off"
+              />
+              <button
+                type="button"
+                className="gen-eye-toggle"
+                onClick={() => setShowMaster((v) => !v)}
+                tabIndex={-1}
+                aria-label={showMaster ? "Hide master password" : "Show master password"}
+              >
+                <EyeIcon open={showMaster} />
+              </button>
+            </div>
+          </div>
 
           <input
             placeholder="Site / App (e.g. gmail)"
@@ -202,15 +241,15 @@ export default function GeneratorWithAuth({ prefilledEntry, onBack }) {
           />
 
           <input
-            placeholder="Keyword (context)"
+            placeholder="Keyword / context (optional)"
             value={keyword}
             onChange={(e) => setKeyword(e.target.value)}
           />
 
-          <div className="row rm-space-between">
+          <div className="field-row">
             <label>Charset</label>
             <select value={charset} onChange={(e) => setCharset(e.target.value)}>
-              <option value="all">All</option>
+              <option value="all">All characters</option>
               <option value="noSymbols">No Symbols</option>
               <option value="lettersOnly">Letters Only</option>
               <option value="digitsOnly">Digits Only</option>
@@ -219,23 +258,20 @@ export default function GeneratorWithAuth({ prefilledEntry, onBack }) {
           </div>
 
           {isCustom && (
-            <div>
+            <div className="custom-prompt-wrap">
               <textarea
-                placeholder="Describe your password requirements (e.g. 'strong 16 char password for banking with no ambiguous chars')"
+                placeholder="Describe your requirements (e.g. 'strong 16-char password for banking, no ambiguous chars')"
                 maxLength={200}
                 value={customInput}
                 onChange={(e) => setCustomInput(e.target.value)}
                 rows={3}
-                style={{ width: "100%", resize: "vertical", boxSizing: "border-box" }}
               />
-              <div style={{ textAlign: "right", fontSize: "0.75rem", opacity: 0.6 }}>
-                {customInput.length}/200
-              </div>
+              <div className="char-count">{customInput.length}/200</div>
             </div>
           )}
 
-          <div className="row rm-space-between">
-            <label htmlFor="length-input">Password Length: {length}</label>
+          <div className="field-row">
+            <label htmlFor="length-input">Length: <strong>{length}</strong></label>
             <input
               id="length-input"
               type="range"
@@ -247,32 +283,51 @@ export default function GeneratorWithAuth({ prefilledEntry, onBack }) {
             />
           </div>
 
-          <button onClick={handleGenerate}>Generate Password</button>
+          <button
+            className="btn-generate"
+            onClick={handleGenerate}
+            disabled={generating}
+          >
+            {generating ? (
+              <span className="btn-spinner-row">
+                <span className="btn-spinner" /> Generating...
+              </span>
+            ) : (
+              "Generate Password"
+            )}
+          </button>
 
           {error && <div className="error">{error}</div>}
 
           {password && (
-            <div className="result">
-              <input readOnly value={password} />
-              <div className={`strength ${strength.toLowerCase()}`}>
-                Strength: {strength}
-                {countdown !== null && ` • hides in ${countdown}s`}
-                <button
-                  className="copy-btn"
-                  onClick={handleCopy}
-                >
-                  {copied ? "✓ Copied" : "Copy"}
+            <div className="result-section">
+              <div className="password-output-wrap">
+                <input className="password-output" readOnly value={password} />
+                <button className="copy-btn" onClick={handleCopy}>
+                  {copied ? "✓" : "Copy"}
                 </button>
+              </div>
+
+              <div className="strength-row">
+                <div className="strength-bars">
+                  <div className={`strength-bar ${strengthLevel === "weak" || strengthLevel === "medium" || strengthLevel === "strong" ? strengthLevel : ""}`} />
+                  <div className={`strength-bar ${strengthLevel === "medium" || strengthLevel === "strong" ? strengthLevel : ""}`} />
+                  <div className={`strength-bar ${strengthLevel === "strong" ? strengthLevel : ""}`} />
+                </div>
+                <span className={`strength-label ${strengthLevel}`}>
+                  {strength}
+                </span>
+                {countdown !== null && (
+                  <span className="countdown">hides in {countdown}s</span>
+                )}
               </div>
             </div>
           )}
+
           {user && generated && !prefilledEntry && (
             <div>
-              <button
-                className="btn-add"
-                onClick={handleAddPassword}
-              >
-                + Add to My Passwords
+              <button className="btn-add" onClick={handleAddPassword}>
+                + Save to My Passwords
               </button>
               {addError && <div className="error">{addError}</div>}
               {addSuccess && <div className="success">{addSuccess}</div>}
