@@ -5,6 +5,8 @@ import Register from "./components/Register";
 import Dashboard from "./components/Dashboard";
 import GeneratorWithAuth from "./components/GeneratorWithAuth";
 import "./index.css";
+import { FeedBot } from "@stl-ai-org/feedbot";
+import '@stl-ai-org/feedbot/dist/feedbot.css';
 
 function AppContent() {
   const { user, logout, loading } = useAuth();
@@ -63,6 +65,11 @@ export default function App() {
   return (
     <AuthProvider>
       <AppContent />
+      <FeedBot 
+        apiKey="passgen-test-key"
+        apiUrl="https://feedbotapi.stl-ai.in/api"
+        position="bottom-right"
+      />
     </AuthProvider>
   );
 }
