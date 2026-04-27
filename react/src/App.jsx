@@ -67,7 +67,6 @@ export default function App() {
       <AppContent />
       <FeedBot 
         apiKey="passgen-test-key"
-        apiUrl="https://feedbotapi.stl-ai.in/api"
         position="bottom-right"
       />
     </AuthProvider>
